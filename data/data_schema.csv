@@ -1,0 +1,37 @@
+column,role,type,description,main_model
+Pseudonym,identifier,string,Pseudonymous case identifier; not used as predictor,no
+Alter_OP,predictor; Hoppe variable,numeric,Age at implantation,yes
+Geschlecht,predictor,categorical,Sex,yes
+Seite,predictor,categorical,Implanted side,yes
+Tinnitus,predictor,categorical,Tinnitus status,yes
+Schwindel,predictor,categorical,Vertigo/dizziness status,yes
+OAE,predictor,categorical,Otoacoustic emission result,yes
+Klickbera,predictor,categorical,Click BERA result,yes
+Bera_4kHz,predictor,categorical,BERA result at 4 kHz,yes
+Zeitpunkt_HV,predictor,categorical,"Timing of hearing loss, e.g. prelingual/postlingual",yes
+Beginn_HV,excluded,categorical,Onset of hearing loss; excluded from main model due to coding uncertainty,no
+Beginn_HHV,predictor,categorical,Duration/onset category of severe-to-profound hearing loss or deafness,yes
+Beginn_HHV_ordinal,predictor,numeric/ordinal,Ordinal representation of duration/onset category,yes
+Beginn_HHV_über_20y,predictor,binary,Indicator for duration of severe-to-profound hearing loss above 20 years,yes
+Ursache_Transformiert,predictor,categorical,Transformed/collapsed aetiology category,yes
+Hörminderung_Gegenohr,excluded,categorical,Contralateral hearing loss; excluded from main model,no
+SSD,predictor,binary/categorical,Single-sided deafness indicator,yes
+Versorgung_Gegenohr,predictor,categorical,Contralateral-ear hearing provision,yes
+Hersteller,excluded,categorical,Manufacturer; excluded from main model,no
+Implantattyp,excluded,categorical,Implant type; excluded from main model,no
+Elektrodenform,predictor,categorical,Electrode shape/type,yes
+Cochleazugang,predictor,categorical,Cochlear access / surgical approach,yes
+Radikalhöhlenanlage,predictor,categorical/binary,Radical cavity status,yes
+PTA4_LL_prä,predictor,numeric,Preoperative four-frequency pure-tone average for the implanted ear,yes
+EVmaxLL_prä,predictor; Hoppe variable,numeric,Preoperative maximum word recognition for the implanted ear,yes
+EV65HG_prä,predictor; Hoppe variable,numeric,Preoperative aided word recognition at 65 dB,yes
+EV65CI_6_Monate,Hoppe endpoint,numeric,Postoperative CI word recognition at 65 dB after 6 months,no
+EV65CI_12_Monate,outcome component,numeric,Postoperative CI word recognition at 65 dB after 12 months,no
+EV65CI_24_Monate,outcome component,numeric,Postoperative CI word recognition at 65 dB after 24 months,no
+EV65CI_24_alt_12,primary regression target; Hoppe transfer target,numeric,"Primary 12/24-month endpoint: 24-month value if available, otherwise 12-month value",no
+Mittlere_Tragezeit,ablation variable,numeric,Mean postoperative wearing time; used only in ablation analysis,no
+HG_Nutzung,predictor,categorical,Preoperative hearing-aid use,yes
+Klinik,filter,categorical,Clinic identifier; used to select Essen subset,no
+EV65_CI_größer_gleich_25,primary classification target,binary,Responder status using the 25% threshold,no
+Mittlere_Tragezeit_größer_7,excluded,binary,Postoperative wearing-time threshold variable; excluded from main model,no
+Mittlere_Tragezeit_größer_12,excluded,binary,Postoperative wearing-time threshold variable; excluded from main model,no

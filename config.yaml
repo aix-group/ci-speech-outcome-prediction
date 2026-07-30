@@ -1,0 +1,81 @@
+# Local path to the clinical dataset. Raw data are not included in this repository.
+data_path: data/raw/Erlangen_Essen_06_07_26.xlsx
+sheet_name: 0
+
+run_id: essen_primary
+random_seed: 42
+n_splits: 5
+
+center_column: Klinik
+center_value: Essen
+
+regression_target: EV65CI_24_alt_12
+classification_target: EV65_CI_größer_gleich_25
+hoppe_6m_target: EV65CI_6_Monate
+
+# If EV65CI_24_alt_12 is not present, it will be created from 24m, then 12m.
+ev65ci_24_candidates:
+  - EV65CI_24_Monate
+  - EV65CI_24
+  - EV65CI_24m
+  - EV65CI_24_monate
+
+ev65ci_12_candidates:
+  - EV65CI_12_Monate
+  - EV65CI_12
+  - EV65CI_12m
+  - EV65CI_12_monate
+
+primary_predictors:
+  - Alter_OP
+  - Geschlecht
+  - Seite
+  - Tinnitus
+  - Schwindel
+  - OAE
+  - Klickbera
+  - Bera_4kHz
+  - Zeitpunkt_HV
+  - Beginn_HHV
+  - Beginn_HHV_ordinal
+  - Beginn_HHV_über_20y
+  - Ursache_Transformiert
+  - SSD
+  - Versorgung_Gegenohr
+  - HG_Nutzung
+  - Elektrodenform
+  - Cochleazugang
+  - Radikalhöhlenanlage
+  - PTA4_LL_prä
+  - EVmaxLL_prä
+  - EV65HG_prä
+
+wearing_time_predictor: Mittlere_Tragezeit
+
+hoppe_predictors:
+  - Alter_OP
+  - EVmaxLL_prä
+  - EV65HG_prä
+
+# Published Hoppe coefficients:
+# prediction = 100 / (1 + exp(-(b0 + b1*WRSmax + b2*age + b3*WRS65HA)))
+hoppe_coefficients:
+  intercept: 0.84
+  wrsmax: 0.012
+  age: -0.0094
+  wrs65ha: 0.0059
+
+hoppe_exclusions:
+  exclude_prelingual: true
+  exclude_evmax_zero: true
+
+classification_positive_values:
+  - 1
+  - "1"
+  - true
+  - "true"
+  - "ja"
+  - "yes"
+  - "responder"
+  - "größer_gleich_25"
+  - ">=25"

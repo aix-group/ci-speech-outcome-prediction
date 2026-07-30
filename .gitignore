@@ -1,0 +1,19 @@
+# raw and local data
+data/raw/
+data/processed/
+*.xlsx
+*.xls
+
+# generated outputs
+runs/
+results/
+*.zip
+
+# local environments
+.venv/
+__pycache__/
+.DS_Store
+
+# allow documentation inside data/
+!data/README.md
+!data/schema.csv
