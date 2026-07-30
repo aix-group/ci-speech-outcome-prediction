@@ -34,10 +34,7 @@ ci-speech-outcome-prediction/
 │   └── README.md
 ├── results/
 │   └── README.md
-├── notebooks/
-│   └── README.md
-└── docs/
-    └── experiment_plan.md
+
 ```
 
 ## Setup
