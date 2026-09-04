@@ -22,14 +22,14 @@ def run_q1(df: pd.DataFrame, cfg: dict, out_dir: Path) -> dict:
     reg_models = build_regression_models(df, predictors, random_seed=seed)
     reg_table, reg_pred, reg_data, reg_predictors = regression_cv(
         df, predictors, target_reg, reg_models,
-        n_splits=n_splits, random_seed=seed, impute_predictors=True,
+        n_splits=n_splits, random_seed=seed, impute_predictors=False,
         analysis="Q1 regression", endpoint=target_reg,
     )
 
     clf_models = build_classification_models(df, predictors, random_seed=seed)
     clf_table, clf_pred, clf_data, clf_predictors, y_clf = classification_cv(
         df, predictors, target_clf, cfg, clf_models,
-        n_splits=n_splits, random_seed=seed, impute_predictors=True,
+        n_splits=n_splits, random_seed=seed, impute_predictors=False,
     )
 
     reg_table.to_csv(tables_dir / "table_2_q1_regression.csv", index=False)

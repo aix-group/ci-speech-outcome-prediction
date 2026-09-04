@@ -27,11 +27,10 @@ def run_q1_ablation(df: pd.DataFrame, cfg: dict, q1_results: dict, out_dir: Path
 
     specs = []
     for model_name in model_names:
-        specs.append(("Primary imputed", model_name, predictors, True))
         specs.append(("Complete case", model_name, predictors, False))
         wearing = cfg.get("wearing_time_predictor")
         if wearing and wearing in df.columns:
-            specs.append(("Postoperative: + Tragezeit", model_name, unique_list(predictors + [wearing]), True))
+            specs.append(("Postoperative: + Tragezeit, Complete case", model_name, unique_list(predictors + [wearing]), False))
 
     rows, preds = [], []
     for analysis, model_name, pred_set, impute in specs:
