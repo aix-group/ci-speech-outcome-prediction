@@ -134,8 +134,6 @@ Klickbera
 Bera_4kHz
 Zeitpunkt_HV
 Beginn_HHV
-Beginn_HHV_ordinal
-Beginn_HHV_über_20y
 Ursache_Transformiert
 SSD
 Versorgung_Gegenohr
@@ -155,7 +153,7 @@ EV65HG_prä
 | Demographics | `Alter_OP`, `Geschlecht` |
 | Side and symptoms | `Seite`, `Tinnitus`, `Schwindel` |
 | Objective hearing diagnostics | `OAE`, `Klickbera`, `Bera_4kHz` |
-| Hearing history | `Zeitpunkt_HV`, `Beginn_HHV`, `Beginn_HHV_ordinal`, `Beginn_HHV_über_20y` |
+| Hearing history | `Zeitpunkt_HV`, `Beginn_HHV`|
 | Aetiology | `Ursache_Transformiert` |
 | Contralateral-ear situation | `SSD`, `Versorgung_Gegenohr`, `HG_Nutzung` |
 | Surgical/perioperative variables | `Elektrodenform`, `Cochleazugang`, `Radikalhöhlenanlage` |

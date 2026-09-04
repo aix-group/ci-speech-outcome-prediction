@@ -11,8 +11,8 @@ Bera_4kHz,predictor,categorical,BERA result at 4 kHz,yes
 Zeitpunkt_HV,predictor,categorical,"Timing of hearing loss, e.g. prelingual/postlingual",yes
 Beginn_HV,excluded,categorical,Onset of hearing loss; excluded from main model due to coding uncertainty,no
 Beginn_HHV,predictor,categorical,Duration/onset category of severe-to-profound hearing loss or deafness,yes
-Beginn_HHV_ordinal,predictor,numeric/ordinal,Ordinal representation of duration/onset category,yes
-Beginn_HHV_über_20y,predictor,binary,Indicator for duration of severe-to-profound hearing loss above 20 years,yes
+Beginn_HHV_ordinal,excluded,numeric/ordinal,Ordinal representation of duration/onset category,no
+Beginn_HHV_über_20y,excluded,binary,Indicator for duration of severe-to-profound hearing loss above 20 years,no
 Ursache_Transformiert,predictor,categorical,Transformed/collapsed aetiology category,yes
 Hörminderung_Gegenohr,excluded,categorical,Contralateral hearing loss; excluded from main model,no
 SSD,predictor,binary/categorical,Single-sided deafness indicator,yes

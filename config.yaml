@@ -37,8 +37,6 @@ primary_predictors:
   - Bera_4kHz
   - Zeitpunkt_HV
   - Beginn_HHV
-  - Beginn_HHV_ordinal
-  - Beginn_HHV_über_20y
   - Ursache_Transformiert
   - SSD
   - Versorgung_Gegenohr
