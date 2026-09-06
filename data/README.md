@@ -130,8 +130,6 @@ Seite
 Tinnitus
 Schwindel
 OAE
-Klickbera
-Bera_4kHz
 Zeitpunkt_HV
 Beginn_HHV
 Ursache_Transformiert
@@ -152,7 +150,7 @@ EV65HG_prä
 |---|---|
 | Demographics | `Alter_OP`, `Geschlecht` |
 | Side and symptoms | `Seite`, `Tinnitus`, `Schwindel` |
-| Objective hearing diagnostics | `OAE`, `Klickbera`, `Bera_4kHz` |
+| Objective hearing diagnostics | `OAE` |
 | Hearing history | `Zeitpunkt_HV`, `Beginn_HHV`|
 | Aetiology | `Ursache_Transformiert` |
 | Contralateral-ear situation | `SSD`, `Versorgung_Gegenohr`, `HG_Nutzung` |
@@ -173,6 +171,8 @@ Hersteller
 Implantattyp
 Beginn_HV
 Hörminderung_Gegenohr
+Klickbera
+Bera_4kHz
 ```
 
 Reasons:

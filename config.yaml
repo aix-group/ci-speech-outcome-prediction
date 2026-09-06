@@ -33,8 +33,6 @@ primary_predictors:
   - Tinnitus
   - Schwindel
   - OAE
-  - Klickbera
-  - Bera_4kHz
   - Zeitpunkt_HV
   - Beginn_HHV
   - Ursache_Transformiert

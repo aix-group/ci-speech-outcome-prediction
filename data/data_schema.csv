@@ -6,8 +6,8 @@ Seite,predictor,categorical,Implanted side,yes
 Tinnitus,predictor,categorical,Tinnitus status,yes
 Schwindel,predictor,categorical,Vertigo/dizziness status,yes
 OAE,predictor,categorical,Otoacoustic emission result,yes
-Klickbera,predictor,categorical,Click BERA result,yes
-Bera_4kHz,predictor,categorical,BERA result at 4 kHz,yes
+Klickbera,excluded,categorical,Click BERA result,no
+Bera_4kHz,excluded,categorical,BERA result at 4 kHz,no
 Zeitpunkt_HV,predictor,categorical,"Timing of hearing loss, e.g. prelingual/postlingual",yes
 Beginn_HV,excluded,categorical,Onset of hearing loss; excluded from main model due to coding uncertainty,no
 Beginn_HHV,predictor,categorical,Duration/onset category of severe-to-profound hearing loss or deafness,yes
