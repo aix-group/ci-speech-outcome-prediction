@@ -47,7 +47,7 @@ def run_q2(df: pd.DataFrame, cfg: dict, q1_results: dict, out_dir: Path) -> dict
     if best_model_name == "Naive baseline":
         best_model_name = "ElasticNet"
 
-    data, predictors = prepare_analysis_frame(df, predictors, target, impute_predictors=True)
+    data, predictors = prepare_analysis_frame(df, predictors, target, impute_predictors=False)
     X = data[predictors].copy()
     y = data[target].astype(float).values
 
