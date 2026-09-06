@@ -5,6 +5,7 @@ import pandas as pd
 
 from models import build_single_regression_model
 from evaluation import regression_cv
+from data import prepare_analysis_frame
 from preprocessing import available_columns, unique_list
 
 
@@ -25,19 +26,33 @@ def run_q1_ablation(df: pd.DataFrame, cfg: dict, q1_results: dict, out_dir: Path
     seed = cfg.get("random_seed", 42)
     n_splits = cfg.get("n_splits", 5)
 
+    wearing = cfg.get("wearing_time_predictor")
+    common_predictors = unique_list(predictors + [wearing])
+
+    common_data, _ = prepare_analysis_frame(
+        df,
+        common_predictors,
+        target,
+        impute_predictors=False,
+    )
+
+    missing = [col for col in common_predictors if col not in df.columns]
+    if missing:
+        raise KeyError(f"Missing ablation predictors: {missing}")
+
     specs = []
     for model_name in model_names:
-        specs.append(("Complete case", model_name, predictors, False))
+        specs.append(("Common complete-case", model_name, predictors, False))
         wearing = cfg.get("wearing_time_predictor")
         if wearing and wearing in df.columns:
-            specs.append(("Postoperative: + Tragezeit, Complete case", model_name, unique_list(predictors + [wearing]), False))
+            specs.append(("Postoperative: + Tragezeit, complete-case", model_name, common_predictors, False))
 
     rows, preds = [], []
     for analysis, model_name, pred_set, impute in specs:
-        pred_set = available_columns(df, pred_set)
-        model = build_single_regression_model(model_name, df, pred_set, random_seed=seed)
+        pred_set = available_columns(common_data, pred_set)
+        model = build_single_regression_model(model_name, common_data, pred_set, random_seed=seed)
         table, pred, _, _ = regression_cv(
-            df, pred_set, target, {model_name: model},
+            common_data, pred_set, target, {model_name: model},
             n_splits=n_splits, random_seed=seed, impute_predictors=impute,
             analysis=analysis, endpoint=target,
         )
