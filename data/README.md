@@ -127,18 +127,14 @@ The final main predictor set is:
 Alter_OP
 Geschlecht
 Seite
-Tinnitus
-Schwindel
-OAE
 Zeitpunkt_HV
 Beginn_HHV
+Beginn_HV
 Ursache_Transformiert
 SSD
 Versorgung_Gegenohr
 HG_Nutzung
 Elektrodenform
-Cochleazugang
-Radikalhöhlenanlage
 PTA4_LL_prä
 EVmaxLL_prä
 EV65HG_prä
@@ -149,12 +145,11 @@ EV65HG_prä
 | Group | Variables |
 |---|---|
 | Demographics | `Alter_OP`, `Geschlecht` |
-| Side and symptoms | `Seite`, `Tinnitus`, `Schwindel` |
-| Objective hearing diagnostics | `OAE` |
-| Hearing history | `Zeitpunkt_HV`, `Beginn_HHV`|
+| Side and symptoms | `Seite`|
+| Hearing history | `Zeitpunkt_HV`, `Beginn_HV`, `Beginn_HHV`|
 | Aetiology | `Ursache_Transformiert` |
 | Contralateral-ear situation | `SSD`, `Versorgung_Gegenohr`, `HG_Nutzung` |
-| Surgical/perioperative variables | `Elektrodenform`, `Cochleazugang`, `Radikalhöhlenanlage` |
+| Surgical/perioperative variables | `Elektrodenform` |
 | Preoperative audiometry and speech audiometry | `PTA4_LL_prä`, `EVmaxLL_prä`, `EV65HG_prä` |
 
 ---
@@ -169,17 +164,20 @@ Mittlere_Tragezeit_größer_7
 Mittlere_Tragezeit_größer_12
 Hersteller
 Implantattyp
-Beginn_HV
 Hörminderung_Gegenohr
 Klickbera
 Bera_4kHz
+Tinnitus
+Schwindel
+OAE
+Cochleazugang
+Radikalhöhlenanlage
 ```
 
 Reasons:
 
 - `Mittlere_Tragezeit` is postoperative and is therefore used only in a separate ablation analysis.
 - `Hersteller` and `Implantattyp` may encode centre-specific treatment patterns and are not part of the main generalisable model.
-- `Beginn_HV` is excluded because of coding uncertainty.
 - `Hörminderung_Gegenohr` is not used because the contralateral-ear situation is already represented by `SSD`, `Versorgung_Gegenohr`, and `HG_Nutzung`.
 
 ---

@@ -3,13 +3,13 @@ Pseudonym,identifier,string,Pseudonymous case identifier; not used as predictor,
 Alter_OP,predictor; Hoppe variable,numeric,Age at implantation,yes
 Geschlecht,predictor,categorical,Sex,yes
 Seite,predictor,categorical,Implanted side,yes
-Tinnitus,predictor,categorical,Tinnitus status,yes
-Schwindel,predictor,categorical,Vertigo/dizziness status,yes
-OAE,predictor,categorical,Otoacoustic emission result,yes
+Tinnitus,excluded,categorical,Tinnitus status,no
+Schwindel,excluded,categorical,Vertigo/dizziness status,no
+OAE,excluded,categorical,Otoacoustic emission result,no
 Klickbera,excluded,categorical,Click BERA result,no
 Bera_4kHz,excluded,categorical,BERA result at 4 kHz,no
 Zeitpunkt_HV,predictor,categorical,"Timing of hearing loss, e.g. prelingual/postlingual",yes
-Beginn_HV,excluded,categorical,Onset of hearing loss; excluded from main model due to coding uncertainty,no
+Beginn_HV,predictor,categorical,Onset of hearing loss,yes
 Beginn_HHV,predictor,categorical,Duration/onset category of severe-to-profound hearing loss or deafness,yes
 Beginn_HHV_ordinal,excluded,numeric/ordinal,Ordinal representation of duration/onset category,no
 Beginn_HHV_über_20y,excluded,binary,Indicator for duration of severe-to-profound hearing loss above 20 years,no
@@ -20,8 +20,8 @@ Versorgung_Gegenohr,predictor,categorical,Contralateral-ear hearing provision,ye
 Hersteller,excluded,categorical,Manufacturer; excluded from main model,no
 Implantattyp,excluded,categorical,Implant type; excluded from main model,no
 Elektrodenform,predictor,categorical,Electrode shape/type,yes
-Cochleazugang,predictor,categorical,Cochlear access / surgical approach,yes
-Radikalhöhlenanlage,predictor,categorical/binary,Radical cavity status,yes
+Cochleazugang,excluded,categorical,Cochlear access / surgical approach,no
+Radikalhöhlenanlage,excluded,categorical/binary,Radical cavity status,no
 PTA4_LL_prä,predictor,numeric,Preoperative four-frequency pure-tone average for the implanted ear,yes
 EVmaxLL_prä,predictor; Hoppe variable,numeric,Preoperative maximum word recognition for the implanted ear,yes
 EV65HG_prä,predictor; Hoppe variable,numeric,Preoperative aided word recognition at 65 dB,yes

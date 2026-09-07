@@ -70,9 +70,9 @@ def harmonize_values(df: pd.DataFrame) -> pd.DataFrame:
         "Klickbera": {"Nicht erhoben": np.nan},
         "Bera_4kHz": {"Nicht erhoben": np.nan},
         "Zeitpunkt_HV": {"Postlingual": "postlingual", "Prälingual": "prälingual"},
-        "Beginn_HV": {"Unbekannt": np.nan, "kA": np.nan, "ka": np.nan, "KA": np.nan},
+        "Beginn_HV": {"Unbekannt/kA": np.nan, "Unbekannt": np.nan, "kA": np.nan, "ka": np.nan, "KA": np.nan},
         "Beginn_HHV": {
-            "Unbekannt": np.nan, "kA": np.nan, "ka": np.nan, "KA": np.nan,
+            "Unbekannt/kA": np.nan, "Unbekannt": np.nan, "kA": np.nan, "ka": np.nan, "KA": np.nan,
             "<1 y": "< 1 y", "> 20y": "> 20 y", "5 -10 y": "5-10 y", "5 - 10 y": "5-10 y"
         },
         "Ursache_Transformiert": {"Infektös": "Infektiös"},

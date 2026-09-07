@@ -30,18 +30,14 @@ primary_predictors:
   - Alter_OP
   - Geschlecht
   - Seite
-  - Tinnitus
-  - Schwindel
-  - OAE
   - Zeitpunkt_HV
+  - Beginn_HV
   - Beginn_HHV
   - Ursache_Transformiert
   - SSD
   - Versorgung_Gegenohr
   - HG_Nutzung
   - Elektrodenform
-  - Cochleazugang
-  - Radikalhöhlenanlage
   - PTA4_LL_prä
   - EVmaxLL_prä
   - EV65HG_prä

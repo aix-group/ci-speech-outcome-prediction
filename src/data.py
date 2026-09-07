@@ -90,7 +90,7 @@ def prepare_study_data(cfg: dict) -> tuple[pd.DataFrame, dict]:
     for col in available_columns(df, numeric_like):
         if col in ["Geschlecht", "Seite", "Tinnitus", "Schwindel", "OAE", "Klickbera", "Bera_4kHz",
                    "Zeitpunkt_HV", "Beginn_HHV", "Ursache_Transformiert", "SSD", "Versorgung_Gegenohr",
-                   "HG_Nutzung", "Elektrodenform", "Cochleazugang", "Radikalhöhlenanlage"]:
+                   "HG_Nutzung", "Elektrodenform", "Beginn_HV"]:
             continue
         df[col] = coerce_numeric(df[col])
 
