@@ -29,6 +29,10 @@ def run_q1_ablation(df: pd.DataFrame, cfg: dict, q1_results: dict, out_dir: Path
     wearing = cfg.get("wearing_time_predictor")
     common_predictors = unique_list(predictors + [wearing])
 
+    missing = [col for col in common_predictors if col not in df.columns]
+    if missing:
+        raise KeyError(f"Missing ablation predictors: {missing}")
+
     complete_data, _ = prepare_analysis_frame(
         df,
         common_predictors,
@@ -43,18 +47,21 @@ def run_q1_ablation(df: pd.DataFrame, cfg: dict, q1_results: dict, out_dir: Path
         impute_predictors=True,
     )
 
-
-    missing = [col for col in common_predictors if col not in df.columns]
-    if missing:
-        raise KeyError(f"Missing ablation predictors: {missing}")
+    imputed_data_wearing, _ = prepare_analysis_frame(
+        df,
+        common_predictors,
+        target,
+        impute_predictors=True
+    )
 
     specs = []
     for model_name in model_names:
         specs.append(("Primary predictors, common complete-case cohort", model_name, predictors, complete_data, False))
+        specs.append(("Primary predictors, imputed cohort", model_name, predictors, imputed_data, True))
         wearing = cfg.get("wearing_time_predictor")
         if wearing and wearing in df.columns:
             specs.append(("Postoperative: + Tragezeit, common complete-case cohort", model_name, common_predictors, complete_data, False))
-        specs.append(("Primary predictors, imputed cohort", model_name, predictors, imputed_data, True))
+            specs.append(("Postoperative: + Tragezeit, imputed cohort", model_name, common_predictors, imputed_data_wearing, True))
 
     rows, preds = [], []
     for analysis, model_name, pred_set, analysis_data, impute in specs:
