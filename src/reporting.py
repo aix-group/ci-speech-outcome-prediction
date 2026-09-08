@@ -91,7 +91,7 @@ def write_results_summary(out_dir: Path, manifest: dict, tables: dict[str, pd.Da
     if "q2_feature_importance" in tables:
         lines.append("## Q2: Feature importance")
         lines.append("")
-        lines.append(df_to_md(tables["q2_feature_importance"], max_rows=20))
+        lines.append(df_to_md(tables["q2_feature_importance"]))
         lines.append("")
 
     if "q3_hoppe" in tables:

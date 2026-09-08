@@ -26,10 +26,10 @@ def _elasticnet_direction_table(model, predictors: list[str]) -> tuple[pd.DataFr
     feature_table["variable"] = feature_table["feature"].map(lambda x: _collapse_feature_to_variable(x, predictors))
     variable_table = (
         feature_table.groupby("variable", as_index=False)
-        .agg(abs_coef_sum=("abs_coef", "sum"), signed_coef_sum=("coef", "sum"))
-        .sort_values("abs_coef_sum", ascending=False)
+        .agg(elasticnet_abs_coef_sum=("abs_coef", "sum"), elasticnet_signed_coef_sum=("coef", "sum"))
+        .sort_values("elasticnet_abs_coef_sum", ascending=False)
     )
-    variable_table["direction_hint"] = np.where(variable_table["signed_coef_sum"] > 0, "positive", np.where(variable_table["signed_coef_sum"] < 0, "negative", "zero"))
+    variable_table["elasticnet_direction_hint"] = np.where(variable_table["elasticnet_signed_coef_sum"] > 0, "positive", np.where(variable_table["elasticnet_signed_coef_sum"] < 0, "negative", "zero"))
     return variable_table, feature_table
 
 
@@ -43,49 +43,79 @@ def run_q2(df: pd.DataFrame, cfg: dict, q1_results: dict, out_dir: Path) -> dict
     target = cfg["regression_target"]
     seed = cfg.get("random_seed", 42)
 
-    best_model_name = q1_results["q1_regression"].sort_values("MAE", ascending=True).iloc[0]["model"]
-    if best_model_name == "Naive baseline":
-        best_model_name = "ElasticNet"
+    ranked = (
+        q1_results["q1_regression"]
+        .query("model != 'Naive baseline'")
+        .sort_values("MAE")
+        .drop_duplicates("model")
+    )
+
+    best_model_name = ranked.iloc[0]["model"]
+    model_names = [best_model_name]
+
+    if best_model_name == "ElasticNet":
+        second_best = ranked.loc[
+            ranked["model"] != "ElasticNet", "model"
+        ].iloc[0]
+        model_names.append(second_best)
+
 
     data, predictors = prepare_analysis_frame(df, predictors, target, impute_predictors=False)
     X = data[predictors].copy()
     y = data[target].astype(float).values
 
-    best_model = build_single_regression_model(best_model_name, data, predictors, random_seed=seed)
-    best_model.fit(X, y)
-
-    perm = permutation_importance(
-        best_model, X, y,
-        scoring="neg_mean_absolute_error",
-        n_repeats=20,
-        random_state=seed,
-        n_jobs=-1,
-    )
-    importance = pd.DataFrame({
-        "variable": predictors,
-        "permutation_importance_mean": perm.importances_mean,
-        "permutation_importance_sd": perm.importances_std,
-        "model": best_model_name,
-    }).sort_values("permutation_importance_mean", ascending=False)
-
     elastic = build_regression_models(data, predictors, random_seed=seed)["ElasticNet"]
     elastic.fit(X, y)
     direction_variable, direction_feature = _elasticnet_direction_table(elastic, predictors)
 
-    merged = importance.merge(direction_variable, on="variable", how="left")
+    importance_tables = []
+    for model_name in model_names:
+
+        best_model = build_single_regression_model(model_name, data, predictors, random_seed=seed)
+        best_model.fit(X, y)
+
+        perm = permutation_importance(
+            best_model, X, y,
+            scoring="neg_mean_absolute_error",
+            n_repeats=20,
+            random_state=seed,
+            n_jobs=-1,
+        )
+        importance = pd.DataFrame({
+            "variable": predictors,
+            "permutation_importance_mean": perm.importances_mean,
+            "permutation_importance_sd": perm.importances_std,
+            "model": model_name,
+        }).sort_values("permutation_importance_mean", ascending=False)
+
+        merged = importance.merge(direction_variable, on="variable", how="left")
+        importance_tables.append(merged)
+
+    merged = pd.concat(importance_tables, ignore_index=True)
     merged.to_csv(tables_dir / "table_s3_feature_importance.csv", index=False)
     direction_feature.to_csv(tables_dir / "table_s4_elasticnet_feature_coefficients.csv", index=False)
 
     # Figure
     import matplotlib.pyplot as plt
-    top = merged.head(15).sort_values("permutation_importance_mean")
-    plt.figure(figsize=(7, 5))
-    plt.barh(top["variable"], top["permutation_importance_mean"])
-    plt.xlabel("Permutation importance (increase in MAE)")
-    plt.ylabel("")
-    plt.title(f"Variable importance: {best_model_name}")
-    plt.tight_layout()
-    plt.savefig(figures_dir / "figure_3_q2_feature_importance.png", dpi=300)
-    plt.close()
+    fig, axes = plt.subplots(
+        1,
+        len(model_names),
+        figsize=(7 * len(model_names), 5),
+        squeeze=False,
+    )
+    for ax, model_name in zip(axes.ravel(), model_names):
+        top = (
+            merged.loc[merged["model"] == model_name]
+            .nlargest(15, "permutation_importance_mean")
+            .sort_values("permutation_importance_mean")
+        )
+        ax.barh(top["variable"], top["permutation_importance_mean"])
+        ax.set_xlabel("Permutation importance (increase in MAE)")
+        ax.set_ylabel("")
+        ax.set_title(f"Variable importance: {model_name}")
 
-    return {"q2_feature_importance": merged, "q2_elasticnet_feature_coefficients": direction_feature, "q2_best_model": best_model_name}
+    fig.tight_layout()
+    fig.savefig(figures_dir / "figure_3_q2_feature_importance.png", dpi=300)
+    plt.close(fig)
+
+    return {"q2_feature_importance": merged, "q2_elasticnet_feature_coefficients": direction_feature, "q2_best_models": model_names}
