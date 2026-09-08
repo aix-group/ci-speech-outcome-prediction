@@ -52,6 +52,7 @@ def main():
         "q1_classification": q1["q1_classification"],
         "q1_ablation": q1_ablation["q1_ablation"],
         "q2_feature_importance": q2["q2_feature_importance"],
+        "q2_feature_importance_with_wearing": q2["q2_feature_importance_with_wearing"],
         "q3_hoppe": q3["q3_hoppe"],
     }
 
@@ -73,6 +74,7 @@ def main():
             "q1_ablation_table": "tables/table_4_q1_ablation.csv",
             "q2_feature_importance": "tables/table_s3_feature_importance.csv", 
             "q2_elasticnet_feature_coefficients": "tables/table_s4_elasticnet_feature_coefficients.csv",
+            "q2_feature_importance_with_wearing": "tables/table_s5_feature_importance_with_wearing.csv",
             "q3_hoppe_table": "tables/table_5_q3_hoppe_comparison.csv",
             "q1_observed_vs_predicted_figure": "figures/figure_1_q1_observed_vs_predicted_winkler.png",
             "q1_error_distribution_figure": "figures/figure_2_q1_error_distribution.png",

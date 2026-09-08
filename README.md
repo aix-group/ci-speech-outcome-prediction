@@ -99,5 +99,7 @@ Generated results, prediction files, and run bundles are also not tracked in Git
 | `tables/table_4_q1_ablation.csv` | Complete-case and Tragezeit ablations |
 | `tables/table_5_q3_hoppe_comparison.csv` | Hoppe comparison for 6-month and 12/24-month endpoints |
 | `tables/table_s3_feature_importance.csv` | Q2 variable-level importance |
+| `tables/table_s4_elasticnet_feature_coefficients.csv` | Q2 feature-level ElasticNet coefficients |
+| `tables/table_s5_feature_importance_with_wearing.csv` | Q2 variable-level importance with wearing time |
 | `figures/` | Manuscript and supplement figures |
 | `predictions/` | Fold-wise predictions for internal checking |
