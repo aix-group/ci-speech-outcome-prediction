@@ -25,12 +25,20 @@ def available_columns(df: pd.DataFrame, columns: list[str]) -> list[str]:
 def missing_columns(df: pd.DataFrame, columns: list[str]) -> list[str]:
     return [c for c in unique_list(columns) if c not in df.columns]
 
+def is_text_like(series: pd.Series) -> bool:
+    dtype = series.dtype
+    return (
+        pd.api.types.is_object_dtype(dtype)
+        or pd.api.types.is_string_dtype(dtype)
+        or isinstance(dtype, pd.CategoricalDtype)
+    )
+
 
 def clean_for_sklearn(df: pd.DataFrame) -> pd.DataFrame:
     out = df.copy()
     out = out.replace({pd.NA: np.nan})
     for col in out.columns:
-        if out[col].dtype == object or str(out[col].dtype).startswith(("string", "category")):
+        if is_text_like(out[col]):
             s = out[col].astype(object)
             s = s.where(pd.notna(s), np.nan)
             s = s.map(lambda x: x.strip() if isinstance(x, str) else x)
