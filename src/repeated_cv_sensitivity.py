@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+from datetime import datetime
 from pathlib import Path
 
 import pandas as pd
@@ -115,6 +116,47 @@ def summarize_repetitions(by_seed: pd.DataFrame) -> pd.DataFrame:
         .reset_index(drop=True)
     )
     return summary
+
+
+def write_results_summary(
+    out_dir: Path,
+    summary: pd.DataFrame,
+    split_seeds: list[int],
+    model_names: list[str],
+    model_seed: int,
+    n_splits: int,
+) -> None:
+    display = summary.copy()
+    numeric_columns = display.select_dtypes(include="number").columns
+    display[numeric_columns] = display[numeric_columns].round(3)
+
+    lines = [
+        "# Repeated-CV sensitivity analysis",
+        "",
+        f"Generated: {datetime.now().isoformat(timespec='seconds')}",
+        "",
+        "## Method",
+        "",
+        f"- Repetitions: {len(split_seeds)}",
+        f"- Outer CV: {n_splits} folds with shuffling",
+        f"- Split seeds: {', '.join(str(seed) for seed in split_seeds)}",
+        f"- Fixed model seed: {model_seed}",
+        f"- Models: {', '.join(model_names)}",
+        "",
+        "Only the outer fold allocation changes between repetitions; the model seed is held fixed.",
+        "",
+        "## Results",
+        "",
+        display.to_markdown(index=False),
+        "",
+        "## Interpretation of the SD columns",
+        "",
+        "- `sd_of_mean_MAE`: standard deviation of the mean five-fold MAE across repetitions.",
+        "- `mean_fold_MAE_SD`: mean, across repetitions, of the within-run standard deviation among the five fold MAEs.",
+        "- `median_fold_MAE_SD`, `min_fold_MAE_SD`, and `max_fold_MAE_SD`: distribution of that within-run fold SD across repetitions.",
+        "",
+    ]
+    (out_dir / "results_summary.md").write_text("\n".join(lines), encoding="utf-8")
 
 
 def run_repeated_cv(
@@ -232,6 +274,9 @@ def main() -> None:
     by_seed.to_csv(tables_dir / "repeated_cv_by_seed.csv", index=False)
     fold_results.to_csv(tables_dir / "repeated_cv_fold_mae.csv", index=False)
     summary.to_csv(tables_dir / "repeated_cv_summary.csv", index=False)
+    write_results_summary(
+        out_dir, summary, split_seeds, args.models, model_seed, n_splits
+    )
 
     manifest = {
         "analysis": "Repeated five-fold CV sensitivity analysis",
@@ -254,6 +299,7 @@ def main() -> None:
         "essen_shape_before_exclusions": meta.get("essen_shape_before_exclusions"),
         "essen_shape_after_exclusions": meta.get("essen_shape_after_exclusions"),
         "outputs": {
+            "results_summary": "results_summary.md",
             "by_seed": "tables/repeated_cv_by_seed.csv",
             "fold_mae": "tables/repeated_cv_fold_mae.csv",
             "summary": "tables/repeated_cv_summary.csv",

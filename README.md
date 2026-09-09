@@ -93,9 +93,9 @@ python src/repeated_cv_sensitivity.py \
 By default, the script evaluates ElasticNet and MLP. The outer split seed
 changes between repetitions, while the model seed remains fixed at the
 `random_seed` in the config. This isolates sensitivity to fold allocation as
-far as possible. The output bundle contains the fold MAEs, one result per
-seed, an across-repetition summary, the exact config, a manifest, and the
-Python environment.
+far as possible. The output bundle contains a human-readable
+`results_summary.md`, the fold MAEs, one result per seed, an across-repetition
+CSV summary, the exact config, a manifest, and the Python environment.
 
 Alternative seeds or models can be supplied explicitly, for example:
 
