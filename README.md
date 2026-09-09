@@ -78,6 +78,31 @@ Zip this folder for sharing and review:
 zip -r essen_primary_results.zip runs/essen_primary
 ```
 
+## Repeated-CV sensitivity analysis
+
+To examine how strongly the regression and ablation results depend on the
+five-fold partition, repeat the analyses across split seeds 42 through 61:
+
+```bash
+python src/repeated_cv_sensitivity.py \
+  --config config.yaml \
+  --out runs/essen_primary_repeated_cv \
+  --seeds 42:61
+```
+
+By default, the script evaluates ElasticNet and MLP. The outer split seed
+changes between repetitions, while the model seed remains fixed at the
+`random_seed` in the config. This isolates sensitivity to fold allocation as
+far as possible. The output bundle contains the fold MAEs, one result per
+seed, an across-repetition summary, the exact config, a manifest, and the
+Python environment.
+
+Alternative seeds or models can be supplied explicitly, for example:
+
+```bash
+python src/repeated_cv_sensitivity.py --seeds 1,7,21 --models ElasticNet MLP
+```
+
 
 ## Data availability
 
