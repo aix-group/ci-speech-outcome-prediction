@@ -4,9 +4,9 @@ This repository contains the clean, paper-facing analysis code CI outcome predic
 
 The analyses address three questions:
 
-1. **Q1 — Predictive performance:** Can postoperative CI speech understanding be predicted from routinely available Essen clinical data?
+1. **Q1 — Predictive performance:** Can postoperative CI speech understanding be predicted from routinely available clinical data?
 2. **Q2 — Predictors and interpretability:** Which variables have the highest predictive value, and in which direction?
-3. **Q3 — Hoppe benchmark:** How do the models compare with the published Hoppe model on the 6-month endpoint and on the 12/24-month study endpoint?
+3. **Q3 — Hoppe benchmark:** How do the models compare with the previously published model by Hoppe on the 6-month endpoint and on the 12/24-month study endpoint?
 
 The raw clinical dataset is **not included** for data protection reasons.
 
