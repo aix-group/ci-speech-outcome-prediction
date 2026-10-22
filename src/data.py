@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from pathlib import Path
+from typing import List, Tuple
 import numpy as np
 import pandas as pd
 
@@ -15,6 +16,17 @@ def first_existing_column(df: pd.DataFrame, candidates: list[str], required: boo
         raise KeyError(f"No {label} found. Tried: {candidates}")
     return None
 
+def load_pairs_ids(cfg: dict) -> List[Tuple]:
+    pairs_ids_path = Path(cfg["pairs_ids_path"])
+    pairs_ids = pd.read_excel = pd.read_csv(pairs_ids_path)
+    pairs_ids = [
+        pair
+        for pair in zip(
+            pairs_ids["Pseudonym 1"].tolist(),
+            pairs_ids["Pseudonym 2"].tolist(),
+        )
+    ]
+    return pairs_ids
 
 def load_raw_data(cfg: dict) -> pd.DataFrame:
     data_path = Path(cfg["data_path"])
