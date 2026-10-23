@@ -15,6 +15,7 @@ from reporting import (
     write_q1_figures,
     write_q1_top_models_scatter,
     write_q2_best_model_importance,
+    write_q3_reference_models_scatter,
     write_results_summary,
     write_environment,
     write_manifest,
@@ -49,6 +50,7 @@ def main():
     q2 = run_q2(df, cfg, q1, out_dir, pairs_ids)
     write_q2_best_model_importance(out_dir, q1["q1_regression"], q2["q2_feature_importance"])
     q3 = run_q3(df, cfg, q1, out_dir, pairs_ids)
+    write_q3_reference_models_scatter(out_dir, q3["q3_hoppe"], q3["q3_hoppe_predictions"], random_seed=cfg.get("random_seed", 42))
 
     tables = {
         "cohort": cohort_table,
@@ -86,6 +88,10 @@ def main():
             "q3_hoppe_figure": "figures/figure_4_q3_hoppe_comparison.png",
             "cochlea_figure_1_q1_top_models": "figures/cochlea_figure_1_q1_top_models_observed_vs_predicted.png",
             "cochlea_figure_2_q2_best_model_importance": "figures/cochlea_figure_2_q2_best_model_importance.png",
+            **{
+                f"cochlea_figure_3_q3_reference_models_{endpoint}": f"figures/cochlea_figure_3_q3_reference_models_{endpoint}.png"
+                for endpoint in (q3["q3_hoppe"]["endpoint"].dropna().unique() if "endpoint" in q3["q3_hoppe"] else [])
+            },
         },
     }
 

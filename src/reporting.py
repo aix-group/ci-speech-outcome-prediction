@@ -201,6 +201,24 @@ def write_q1_figures(out_dir: Path, q1_results: dict) -> None:
     plt.close()
 
 
+def _observed_vs_predicted_panel(ax, observed, predicted, r2: float, rng, xlabel: str, title: str) -> None:
+    """Shared panel for Cochlea Figures 1 and 3: jittered scatter on fixed 0-100 axes with identity line and R²."""
+    x_jittered = np.clip(predicted + rng.uniform(-1, 1, len(predicted)), 0, 100)
+    y_jittered = np.clip(observed + rng.uniform(-1, 1, len(observed)), 0, 100)
+
+    # clip_on=False keeps markers at 0 and 100 fully visible with the axes fixed to 0-100
+    ax.scatter(x_jittered, y_jittered, s=12, alpha=0.5, clip_on=False)
+    ax.plot([0, 100], [0, 100], "k--", linewidth=1)
+    ax.set_xlim(0, 100)
+    ax.set_ylim(0, 100)
+    ax.set_aspect("equal")
+    ax.set_xlabel(xlabel, fontsize=14)
+    ax.set_ylabel("Observed EV65CI (%)", fontsize=14)
+    ax.set_title(title, fontsize=15)
+    ax.text(0.04, 0.96, f"R² = {r2:.2f}", transform=ax.transAxes, va="top", ha="left", fontsize=14)
+    ax.tick_params(labelsize=12)
+
+
 def write_q1_top_models_scatter(out_dir: Path, q1_results: dict, random_seed: int = 42) -> None:
     """Cochlea Figure 1: observed vs predicted EV65CI for the two best Q1 models.
 
@@ -224,26 +242,58 @@ def write_q1_top_models_scatter(out_dir: Path, q1_results: dict, random_seed: in
     fig, axes = plt.subplots(1, len(ranked), figsize=(6 * len(ranked), 6), squeeze=False)
     for ax, (rank, row) in zip(axes.ravel(), enumerate(ranked.itertuples(index=False), start=1)):
         model_df = preds[preds["model"] == row.model]
-        observed = model_df["y_true"].to_numpy(dtype=float)
-        predicted = model_df["y_pred"].to_numpy(dtype=float)
-        x_jittered = np.clip(predicted + rng.uniform(-1, 1, len(predicted)), 0, 100)
-        y_jittered = np.clip(observed + rng.uniform(-1, 1, len(observed)), 0, 100)
-
-        # clip_on=False keeps markers at 0 and 100 fully visible with the axes fixed to 0-100
-        ax.scatter(x_jittered, y_jittered, s=12, alpha=0.5, clip_on=False)
-        ax.plot([0, 100], [0, 100], "k--", linewidth=1)
-        ax.set_xlim(0, 100)
-        ax.set_ylim(0, 100)
-        ax.set_aspect("equal")
-        ax.set_xlabel("Predicted EV65CI (%)", fontsize=14)
-        ax.set_ylabel("Observed EV65CI (%)", fontsize=14)
-        ax.set_title(f"{'Best' if rank == 1 else 'Second-best'} model: {row.model}", fontsize=15)
-        ax.text(0.04, 0.96, f"R² = {row.R2:.2f}", transform=ax.transAxes, va="top", ha="left", fontsize=14)
-        ax.tick_params(labelsize=12)
+        _observed_vs_predicted_panel(
+            ax,
+            observed=model_df["y_true"].to_numpy(dtype=float),
+            predicted=model_df["y_pred"].to_numpy(dtype=float),
+            r2=row.R2,
+            rng=rng,
+            xlabel="Predicted EV65CI (%)",
+            title=f"{'Best' if rank == 1 else 'Second-best'} model: {row.model}",
+        )
 
     fig.tight_layout()
     fig.savefig(figures / "cochlea_figure_1_q1_top_models_observed_vs_predicted.png", dpi=300)
     plt.close(fig)
+
+
+def write_q3_reference_models_scatter(out_dir: Path, hoppe_table: pd.DataFrame, hoppe_predictions: pd.DataFrame, random_seed: int = 42) -> None:
+    """Cochlea Figure 3: observed vs predicted EV65CI for the published and the refitted Hoppe model.
+
+    One figure per Q3 endpoint. R² comes from the Q3 table: a single value over the whole
+    cohort for the published formula (no CV), the mean across CV folds for the refit.
+    """
+    figures = out_dir / "figures"
+    figures.mkdir(parents=True, exist_ok=True)
+    if hoppe_table.empty or hoppe_predictions.empty:
+        return
+    panels = [
+        ("Published Hoppe formula", "Original reference model", "Predicted EV65CI – Reference model (%)"),
+        ("Hoppe variables refit", "Adapted reference model", "Predicted EV65CI – Adapted reference model (%)"),
+    ]
+
+    for endpoint in hoppe_table["endpoint"].dropna().unique():
+        rng = np.random.default_rng(random_seed)
+        fig, axes = plt.subplots(1, len(panels), figsize=(6 * len(panels), 6.4), squeeze=False)
+        for ax, (model, title, xlabel) in zip(axes.ravel(), panels):
+            row = hoppe_table[(hoppe_table["endpoint"] == endpoint) & (hoppe_table["model"] == model)]
+            model_df = hoppe_predictions[(hoppe_predictions["endpoint"] == endpoint) & (hoppe_predictions["model"] == model)]
+            if row.empty or model_df.empty:
+                ax.set_axis_off()
+                continue
+            _observed_vs_predicted_panel(
+                ax,
+                observed=model_df["y_true"].to_numpy(dtype=float),
+                predicted=model_df["y_pred"].to_numpy(dtype=float),
+                r2=row.iloc[0]["R2"],
+                rng=rng,
+                xlabel=xlabel,
+                title=title,
+            )
+        fig.suptitle(f"Endpoint: {endpoint}", fontsize=15)
+        fig.tight_layout()
+        fig.savefig(figures / f"cochlea_figure_3_q3_reference_models_{endpoint}.png", dpi=300)
+        plt.close(fig)
 
 
 def write_q2_best_model_importance(out_dir: Path, q1_regression: pd.DataFrame, importance: pd.DataFrame) -> None:
