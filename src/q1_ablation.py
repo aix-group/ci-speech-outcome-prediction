@@ -9,7 +9,7 @@ from data import prepare_analysis_frame
 from preprocessing import available_columns, unique_list
 
 
-def run_q1_ablation(df: pd.DataFrame, cfg: dict, q1_results: dict, out_dir: Path) -> dict:
+def run_q1_ablation(df: pd.DataFrame, cfg: dict, q1_results: dict, out_dir: Path, pairs_ids: list[tuple]) -> dict:
     tables_dir = out_dir / "tables"
     preds_dir = out_dir / "predictions"
     tables_dir.mkdir(parents=True, exist_ok=True)
@@ -23,6 +23,7 @@ def run_q1_ablation(df: pd.DataFrame, cfg: dict, q1_results: dict, out_dir: Path
 
     predictors = cfg["primary_predictors"]
     target = cfg["regression_target"]
+    patient_ids_col = cfg["patient_ids_col"]
     seed = cfg.get("random_seed", 42)
     n_splits = cfg.get("n_splits", 5)
 
@@ -67,8 +68,12 @@ def run_q1_ablation(df: pd.DataFrame, cfg: dict, q1_results: dict, out_dir: Path
     for analysis, model_name, pred_set, analysis_data, impute in specs:
         pred_set = available_columns(analysis_data, pred_set)
         model = build_single_regression_model(model_name, analysis_data, pred_set, random_seed=seed)
+
+        # prepared frames only contain predictors + target, so re-attach the patient ID
+        cv_df = analysis_data.assign(**{patient_ids_col: df.loc[analysis_data.index, patient_ids_col]})
+
         table, pred, _, _ = regression_cv(
-            analysis_data, pred_set, target, {model_name: model},
+            cv_df, pred_set, target, patient_ids_col, pairs_ids, {model_name: model},
             n_splits=n_splits, random_seed=seed, impute_predictors=impute,
             analysis=analysis, endpoint=target,
         )

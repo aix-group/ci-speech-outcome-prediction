@@ -3,7 +3,7 @@ from __future__ import annotations
 import numpy as np
 import pandas as pd
 from sklearn.base import clone
-from sklearn.model_selection import KFold, StratifiedKFold
+from sklearn.model_selection import GroupKFold, StratifiedGroupKFold
 
 from data import prepare_analysis_frame, prepare_classification_frame
 from metrics import regression_metrics, classification_metrics, round_to_five_percent, winkler_ci_bounds_for_prediction, winkler_inside_ci
@@ -24,12 +24,42 @@ def summarize_cv_rows(rows: list[dict], sort_by: str, ascending: bool = True) ->
         out = means.merge(sds, on=group_cols, how="left")
     return out.sort_values(sort_by, ascending=ascending).reset_index(drop=True)
 
+def build_groups(sample_ids, pairs_ids):
+    sample_ids = np.asarray(sample_ids)
 
-def regression_cv(df, predictors, target, models, n_splits=5, random_seed=42, impute_predictors=True, analysis=None, endpoint=None):
+    # union-find over pseudonyms
+    parent = {}
+    def find(x):
+        parent.setdefault(x, x)
+        while parent[x] != x:
+            parent[x] = parent[parent[x]]
+            x = parent[x]
+        return x
+    def union(a, b):
+        ra, rb = find(a), find(b)
+        if ra != rb:
+            parent[rb] = ra
+
+    for a, b in pairs_ids:
+        union(a, b)
+
+    roots = np.array([find(i) for i in sample_ids])
+    _, groups = np.unique(roots, return_inverse=True)
+    return groups
+
+def regression_cv(df, predictors, target, patient_ids_col, pairs_ids, models, n_splits=5, random_seed=42, impute_predictors=True, analysis=None, endpoint=None):
     data, predictors = prepare_analysis_frame(df, predictors, target, impute_predictors=impute_predictors)
+
     X = data[predictors].copy()
     y = data[target].astype(float).values
-    splits = list(KFold(n_splits=n_splits, shuffle=True, random_state=random_seed).split(X, y))
+
+    sample_ids = df.loc[data.index, patient_ids_col]
+    groups = build_groups(sample_ids, pairs_ids)
+    splits = list(
+        GroupKFold(
+            n_splits=n_splits, shuffle=True, random_state=random_seed
+        ).split(X, y, groups=groups)
+    )
     rows, predictions = [], []
 
     for model_name, model in models.items():
@@ -63,11 +93,20 @@ def regression_cv(df, predictors, target, models, n_splits=5, random_seed=42, im
     return summarize_cv_rows(rows, sort_by="MAE", ascending=True), pd.concat(predictions, ignore_index=True), data, predictors
 
 
-def classification_cv(df, predictors, target, cfg, models, n_splits=5, random_seed=42, impute_predictors=True):
+def classification_cv(df, predictors, target, cfg, pairs_ids, models, n_splits=5, random_seed=42, impute_predictors=True):
     data, predictors, y_series = prepare_classification_frame(df, predictors, target, cfg, impute_predictors=impute_predictors)
+
     X = data[predictors].copy()
     y = y_series.astype(int).values
-    splits = list(StratifiedKFold(n_splits=n_splits, shuffle=True, random_state=random_seed).split(X, y))
+
+    sample_ids = df.loc[data.index, cfg["patient_ids_col"]]
+    groups = build_groups(sample_ids, pairs_ids)
+    splits = list(
+        StratifiedGroupKFold(
+            n_splits=n_splits, shuffle=True, random_state=random_seed
+        ).split(X, y, groups=groups)
+    )
+
     rows, predictions = [], []
 
     for model_name, model in models.items():

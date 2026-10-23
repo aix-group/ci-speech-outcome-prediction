@@ -35,7 +35,7 @@ def _fixed_hoppe_row(df, cfg, endpoint: str) -> tuple[dict, pd.DataFrame]:
     return row, pred
 
 
-def run_q3(df: pd.DataFrame, cfg: dict, q1_results: dict, out_dir: Path) -> dict:
+def run_q3(df: pd.DataFrame, cfg: dict, q1_results: dict, out_dir: Path, pairs_ids: list[tuple]) -> dict:
     tables_dir = out_dir / "tables"
     preds_dir = out_dir / "predictions"
     figures_dir = out_dir / "figures"
@@ -48,6 +48,7 @@ def run_q3(df: pd.DataFrame, cfg: dict, q1_results: dict, out_dir: Path) -> dict
     hoppe_predictors = cfg["hoppe_predictors"]
     endpoints = [cfg.get("hoppe_6m_target"), cfg.get("regression_target")]
     endpoints = [e for e in endpoints if e and e in df.columns]
+    patient_ids_col = cfg["patient_ids_col"]
 
     best_q1_model = q1_results["q1_regression"].sort_values("MAE", ascending=True).iloc[0]["model"]
     if best_q1_model == "Naive baseline":
@@ -70,7 +71,7 @@ def run_q3(df: pd.DataFrame, cfg: dict, q1_results: dict, out_dir: Path) -> dict
         all_predictions.append(fixed_pred)
 
         refit_table, refit_pred, _, _ = regression_cv(
-            dfx, hoppe_predictors, endpoint,
+            dfx, hoppe_predictors, endpoint, patient_ids_col, pairs_ids,
             {"Hoppe variables refit": build_hoppe_refit_model(), "Naive baseline": build_single_regression_model("Naive baseline", dfx, hoppe_predictors, seed)},
             n_splits=n_splits, random_seed=seed, impute_predictors=True,
             analysis="Hoppe comparison", endpoint=endpoint,
@@ -81,7 +82,7 @@ def run_q3(df: pd.DataFrame, cfg: dict, q1_results: dict, out_dir: Path) -> dict
         if primary_predictors:
             q1_model = build_single_regression_model(best_q1_model, dfx, primary_predictors, seed)
             main_table, main_pred, _, _ = regression_cv(
-                dfx, primary_predictors, endpoint,
+                dfx, primary_predictors, endpoint, patient_ids_col, pairs_ids,
                 {f"Best Q1 model ({best_q1_model})": q1_model},
                 n_splits=n_splits, random_seed=seed, impute_predictors=True,
                 analysis="Hoppe comparison", endpoint=endpoint,

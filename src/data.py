@@ -16,17 +16,21 @@ def first_existing_column(df: pd.DataFrame, candidates: list[str], required: boo
         raise KeyError(f"No {label} found. Tried: {candidates}")
     return None
 
+def normalize_id(x):
+    if pd.isna(x):
+        return np.nan
+    if isinstance(x, float) and x.is_integer():  # Excel often turns 123 into 123.0
+        x = int(x)
+    return str(x).strip()
+
+
 def load_pairs_ids(cfg: dict) -> List[Tuple]:
     pairs_ids_path = Path(cfg["pairs_ids_path"])
-    pairs_ids = pd.read_excel = pd.read_csv(pairs_ids_path)
-    pairs_ids = [
-        pair
-        for pair in zip(
-            pairs_ids["Pseudonym 1"].tolist(),
-            pairs_ids["Pseudonym 2"].tolist(),
-        )
+    pairs = pd.read_csv(pairs_ids_path, dtype=str)  # dtype=str keeps IDs like "007" intact
+    return [
+        (normalize_id(a), normalize_id(b))
+        for a, b in zip(pairs["Pseudonym 1"], pairs["Pseudonym 2"])
     ]
-    return pairs_ids
 
 def load_raw_data(cfg: dict) -> pd.DataFrame:
     data_path = Path(cfg["data_path"])
@@ -86,13 +90,27 @@ def apply_hoppe_exclusions(df: pd.DataFrame, cfg: dict) -> pd.DataFrame:
     return out.loc[mask].copy()
 
 
-def prepare_study_data(cfg: dict) -> tuple[pd.DataFrame, dict]:
+def prepare_study_data(cfg: dict) -> tuple[pd.DataFrame, List[Tuple], dict]:
     raw = load_raw_data(cfg)
+    id_col = cfg["patient_ids_col"]
+    raw[id_col] = raw[id_col].map(normalize_id)
     essen = filter_essen(raw, cfg)
     df = harmonize_values(essen)
     df = make_primary_endpoint(df, cfg)
     df = apply_general_exclusions(df)
     df = clean_for_sklearn(df)
+
+    # Pairs may point to other centres or excluded patients, so check against raw.
+    # Zero matches means the ID formats differ and grouping would silently do nothing.
+    pairs_ids = load_pairs_ids(cfg)
+    known = set(raw[id_col].dropna())
+    pair_members = {p for pair in pairs_ids for p in pair if pd.notna(p)}
+    matched = len(pair_members & known)
+    if pair_members and matched == 0:
+        raise ValueError(
+            f"None of the {len(pair_members)} pseudonyms in {cfg['pairs_ids_path']} "
+            f"match column {id_col!r}; check the ID format."
+        )
 
     numeric_like = unique_list(
         cfg.get("primary_predictors", [])
@@ -110,8 +128,9 @@ def prepare_study_data(cfg: dict) -> tuple[pd.DataFrame, dict]:
         "raw_shape": list(raw.shape),
         "essen_shape_before_exclusions": list(essen.shape),
         "essen_shape_after_exclusions": list(df.shape),
+        "pair_ids_matched": f"{matched}/{len(pair_members)}",
     }
-    return df, meta
+    return df, pairs_ids, meta
 
 
 def prepare_analysis_frame(df: pd.DataFrame, predictors: list[str], target: str, impute_predictors: bool = True) -> tuple[pd.DataFrame, list[str]]:

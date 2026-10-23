@@ -6,6 +6,7 @@ run_id: essen_primary
 random_seed: 42
 n_splits: 5
 pairs_ids_path: data/raw/pseudonyms_mappings.csv
+patient_ids_col : Pseudonym
 
 center_column: Klinik
 center_value: Essen

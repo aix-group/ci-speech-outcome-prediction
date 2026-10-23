@@ -35,16 +35,16 @@ def main():
     (out_dir / "figures").mkdir(parents=True, exist_ok=True)
     (out_dir / "predictions").mkdir(parents=True, exist_ok=True)
 
-    df, meta = prepare_study_data(cfg)
+    df, pairs_ids, meta = prepare_study_data(cfg)
     cohort_table = write_cohort_table(df, meta, cfg, out_dir)
     write_supplement_tables(df, cfg, out_dir)
 
-    q1 = run_q1(df, cfg, out_dir)
+    q1 = run_q1(df, cfg, out_dir, pairs_ids)
     write_q1_figures(out_dir, q1)
 
-    q1_ablation = run_q1_ablation(df, cfg, q1, out_dir)
-    q2 = run_q2(df, cfg, q1, out_dir)
-    q3 = run_q3(df, cfg, q1, out_dir)
+    q1_ablation = run_q1_ablation(df, cfg, q1, out_dir, pairs_ids)
+    q2 = run_q2(df, cfg, q1, out_dir, pairs_ids)
+    q3 = run_q3(df, cfg, q1, out_dir, pairs_ids)
 
     tables = {
         "cohort": cohort_table,

@@ -75,7 +75,7 @@ def _calculate_feature_importance(
     return pd.concat(importance_tables, ignore_index=True), direction_feature
 
 
-def run_q2(df: pd.DataFrame, cfg: dict, q1_results: dict, out_dir: Path) -> dict:
+def run_q2(df: pd.DataFrame, cfg: dict, q1_results: dict, out_dir: Path, pairs_ids: list[tuple]) -> dict:
     tables_dir = out_dir / "tables"
     figures_dir = out_dir / "figures"
     tables_dir.mkdir(parents=True, exist_ok=True)

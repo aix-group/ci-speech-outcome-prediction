@@ -7,7 +7,7 @@ from models import build_regression_models, build_classification_models
 from evaluation import regression_cv, classification_cv
 
 
-def run_q1(df: pd.DataFrame, cfg: dict, out_dir: Path) -> dict:
+def run_q1(df: pd.DataFrame, cfg: dict, out_dir: Path, pairs_ids: list[tuple]) -> dict:
     tables_dir = out_dir / "tables"
     preds_dir = out_dir / "predictions"
     tables_dir.mkdir(parents=True, exist_ok=True)
@@ -16,19 +16,20 @@ def run_q1(df: pd.DataFrame, cfg: dict, out_dir: Path) -> dict:
     predictors = cfg["primary_predictors"]
     target_reg = cfg["regression_target"]
     target_clf = cfg["classification_target"]
+    patient_ids_col = cfg["patient_ids_col"]
     seed = cfg.get("random_seed", 42)
     n_splits = cfg.get("n_splits", 5)
 
     reg_models = build_regression_models(df, predictors, random_seed=seed)
     reg_table, reg_pred, reg_data, reg_predictors = regression_cv(
-        df, predictors, target_reg, reg_models,
+        df, predictors, target_reg, patient_ids_col, pairs_ids, reg_models,
         n_splits=n_splits, random_seed=seed, impute_predictors=False,
         analysis="Q1 regression", endpoint=target_reg,
     )
 
     clf_models = build_classification_models(df, predictors, random_seed=seed)
     clf_table, clf_pred, clf_data, clf_predictors, y_clf = classification_cv(
-        df, predictors, target_clf, cfg, clf_models,
+        df, predictors, target_clf, cfg, pairs_ids, clf_models,
         n_splits=n_splits, random_seed=seed, impute_predictors=False,
     )
 
