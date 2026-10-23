@@ -14,6 +14,24 @@ import yaml
 from metrics import WINKLER_CI
 
 
+# Manuscript terminology for predictor columns; unmapped columns fall back to their raw name.
+VARIABLE_LABELS = {
+    "Alter_OP": "Alter",
+    "Seite": "Seite",
+    "Zeitpunkt_HV": "Zeitpunkt der Hörminderung",
+    "Beginn_HV": "Dauer der Hörminderung",
+    "Beginn_HHV": "Dauer der hochgradigen Hörminderung oder Taubheit",
+    "Ursache_Transformiert": "Ursache",
+    "SSD": "Einseitige Hörminderung (SSD)",
+    "Versorgung_Gegenohr": "Versorgung Gegenohr",
+    "HG_Nutzung": "Hörgerätenutzung",
+    "Elektrodenform": "Elektrodenform",
+    "PTA4_LL_prä": "4PTA LL",
+    "EVmaxLL_prä": "EVmaxLL",
+    "EV65HG_prä": "EV65HG",
+}
+
+
 def df_to_md(df: pd.DataFrame, digits: int = 3, max_rows: int | None = None) -> str:
     if df is None or df.empty:
         return "_No rows._"
@@ -225,4 +243,35 @@ def write_q1_top_models_scatter(out_dir: Path, q1_results: dict, random_seed: in
 
     fig.tight_layout()
     fig.savefig(figures / "cochlea_figure_1_q1_top_models_observed_vs_predicted.png", dpi=300)
+    plt.close(fig)
+
+
+def write_q2_best_model_importance(out_dir: Path, q1_regression: pd.DataFrame, importance: pd.DataFrame) -> None:
+    """Cochlea Figure 2: permutation importance (mean over repeats) of the best Q1 model.
+
+    The best model is ranked as in Cochlea Figure 1 (lowest MAE, naive baseline excluded).
+    """
+    figures = out_dir / "figures"
+    figures.mkdir(parents=True, exist_ok=True)
+    ranked = q1_regression.query("model != 'Naive baseline'").sort_values("MAE", ascending=True)
+    if ranked.empty or importance.empty:
+        return
+    best_model = ranked.iloc[0]["model"]
+    # barh draws the first row at the bottom, so ascending order puts the most important on top
+    plot_df = importance[importance["model"] == best_model].sort_values("permutation_importance_mean")
+    if plot_df.empty:
+        return
+    labels = plot_df["variable"].map(lambda v: VARIABLE_LABELS.get(v, v))
+
+    fig, ax = plt.subplots(figsize=(11, 0.45 * len(plot_df) + 1.8))
+    ax.barh(labels, plot_df["permutation_importance_mean"])
+    if (plot_df["permutation_importance_mean"] < 0).any():
+        ax.axvline(0, color="black", linewidth=1)
+    ax.set_xlabel("Permutation importance\n(increase in MAE, percentage points)", fontsize=14)
+    ax.set_ylabel("")
+    ax.set_title(f"Best model: {best_model}", fontsize=15)
+    ax.tick_params(labelsize=12)
+
+    fig.tight_layout()
+    fig.savefig(figures / "cochlea_figure_2_q2_best_model_importance.png", dpi=300)
     plt.close(fig)

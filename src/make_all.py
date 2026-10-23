@@ -14,6 +14,7 @@ from reporting import (
     write_supplement_tables,
     write_q1_figures,
     write_q1_top_models_scatter,
+    write_q2_best_model_importance,
     write_results_summary,
     write_environment,
     write_manifest,
@@ -46,6 +47,7 @@ def main():
 
     q1_ablation = run_q1_ablation(df, cfg, q1, out_dir, pairs_ids)
     q2 = run_q2(df, cfg, q1, out_dir, pairs_ids)
+    write_q2_best_model_importance(out_dir, q1["q1_regression"], q2["q2_feature_importance"])
     q3 = run_q3(df, cfg, q1, out_dir, pairs_ids)
 
     tables = {
@@ -83,6 +85,7 @@ def main():
             "q2_feature_importance_figure": "figures/figure_3_q2_feature_importance.png",
             "q3_hoppe_figure": "figures/figure_4_q3_hoppe_comparison.png",
             "cochlea_figure_1_q1_top_models": "figures/cochlea_figure_1_q1_top_models_observed_vs_predicted.png",
+            "cochlea_figure_2_q2_best_model_importance": "figures/cochlea_figure_2_q2_best_model_importance.png",
         },
     }
 
