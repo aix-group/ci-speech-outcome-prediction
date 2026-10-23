@@ -13,6 +13,7 @@ from reporting import (
     write_cohort_table,
     write_supplement_tables,
     write_q1_figures,
+    write_q1_top_models_scatter,
     write_results_summary,
     write_environment,
     write_manifest,
@@ -41,6 +42,7 @@ def main():
 
     q1 = run_q1(df, cfg, out_dir, pairs_ids)
     write_q1_figures(out_dir, q1)
+    write_q1_top_models_scatter(out_dir, q1, random_seed=cfg.get("random_seed", 42))
 
     q1_ablation = run_q1_ablation(df, cfg, q1, out_dir, pairs_ids)
     q2 = run_q2(df, cfg, q1, out_dir, pairs_ids)
@@ -80,6 +82,7 @@ def main():
             "q1_error_distribution_figure": "figures/figure_2_q1_error_distribution.png",
             "q2_feature_importance_figure": "figures/figure_3_q2_feature_importance.png",
             "q3_hoppe_figure": "figures/figure_4_q3_hoppe_comparison.png",
+            "cochlea_figure_1_q1_top_models": "figures/cochlea_figure_1_q1_top_models_observed_vs_predicted.png",
         },
     }
 

@@ -6,6 +6,7 @@ import json
 import subprocess
 import sys
 import shutil
+import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import yaml
@@ -180,3 +181,47 @@ def write_q1_figures(out_dir: Path, q1_results: dict) -> None:
     plt.tight_layout()
     plt.savefig(figures / "figure_2_q1_error_distribution.png", dpi=300)
     plt.close()
+
+
+def write_q1_top_models_scatter(out_dir: Path, q1_results: dict, random_seed: int = 42) -> None:
+    """Cochlea Figure 1: observed vs predicted EV65CI for the two best Q1 models.
+
+    Observed and predicted values both lie on 5-pp steps, so both get a small
+    jitter for display only; R² is taken from the Q1 regression table (mean across CV folds).
+    """
+    figures = out_dir / "figures"
+    figures.mkdir(parents=True, exist_ok=True)
+    preds = q1_results["q1_regression_predictions"]
+    ranked = (
+        q1_results["q1_regression"]
+        .query("model != 'Naive baseline'")
+        .sort_values("MAE", ascending=True)
+        .drop_duplicates("model")
+        .head(2)
+    )
+    if preds.empty or ranked.empty:
+        return
+
+    rng = np.random.default_rng(random_seed)
+    fig, axes = plt.subplots(1, len(ranked), figsize=(6 * len(ranked), 6), squeeze=False)
+    for ax, (rank, row) in zip(axes.ravel(), enumerate(ranked.itertuples(index=False), start=1)):
+        model_df = preds[preds["model"] == row.model]
+        observed = model_df["y_true"].to_numpy(dtype=float)
+        predicted = model_df["y_pred"].to_numpy(dtype=float)
+        x_jittered = np.clip(predicted + rng.uniform(-1, 1, len(predicted)), 0, 100)
+        y_jittered = np.clip(observed + rng.uniform(-1, 1, len(observed)), 0, 100)
+
+        # clip_on=False keeps markers at 0 and 100 fully visible with the axes fixed to 0-100
+        ax.scatter(x_jittered, y_jittered, s=12, alpha=0.5, clip_on=False)
+        ax.plot([0, 100], [0, 100], "k--", linewidth=1)
+        ax.set_xlim(0, 100)
+        ax.set_ylim(0, 100)
+        ax.set_aspect("equal")
+        ax.set_xlabel("Predicted EV65CI (%)")
+        ax.set_ylabel("Observed EV65CI (%)")
+        ax.set_title(f"{'Best' if rank == 1 else 'Second-best'} model: {row.model}")
+        ax.text(0.04, 0.96, f"R² = {row.R2:.2f}", transform=ax.transAxes, va="top", ha="left")
+
+    fig.tight_layout()
+    fig.savefig(figures / "cochlea_figure_1_q1_top_models_observed_vs_predicted.png", dpi=300)
+    plt.close(fig)
