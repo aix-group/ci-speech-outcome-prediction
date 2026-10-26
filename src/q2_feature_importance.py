@@ -8,6 +8,7 @@ from sklearn.inspection import permutation_importance
 from data import prepare_analysis_frame
 from models import build_single_regression_model, build_regression_models
 from preprocessing import get_feature_names_from_column_transformer, unique_list
+from reporting import save_figure
 
 
 def _collapse_feature_to_variable(feature: str, predictors: list[str]) -> str:
@@ -157,7 +158,7 @@ def run_q2(df: pd.DataFrame, cfg: dict, q1_results: dict, out_dir: Path, pairs_i
         ax.set_title(f"Variable importance: {model_name}")
 
     fig.tight_layout()
-    fig.savefig(figures_dir / "figure_3_q2_feature_importance.png", dpi=300)
+    save_figure(fig, figures_dir / "figure_3_q2_feature_importance")
     plt.close(fig)
 
     return {

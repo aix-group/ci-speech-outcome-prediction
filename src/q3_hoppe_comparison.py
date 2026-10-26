@@ -9,6 +9,7 @@ from preprocessing import coerce_numeric
 from metrics import regression_metrics, round_to_five_percent, winkler_ci_bounds_for_prediction, winkler_inside_ci
 from models import published_hoppe_formula, build_hoppe_refit_model, build_single_regression_model
 from evaluation import regression_cv
+from reporting import save_figure
 
 
 def _fixed_hoppe_row(df, cfg, endpoint: str) -> tuple[dict, pd.DataFrame]:
@@ -110,7 +111,7 @@ def run_q3(df: pd.DataFrame, cfg: dict, q1_results: dict, out_dir: Path, pairs_i
         plt.ylabel("")
         plt.title("Hoppe comparison")
         plt.tight_layout()
-        plt.savefig(figures_dir / "figure_4_q3_hoppe_comparison.png", dpi=300)
+        save_figure(plt.gcf(), figures_dir / "figure_4_q3_hoppe_comparison")
         plt.close()
 
     return {"q3_hoppe": hoppe_table, "q3_hoppe_predictions": hoppe_pred}

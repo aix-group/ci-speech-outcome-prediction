@@ -159,6 +159,13 @@ def write_supplement_tables(df: pd.DataFrame, cfg: dict, out_dir: Path) -> None:
     WINKLER_CI.to_csv(out_dir / "tables" / "table_s2_winkler_holube_ci.csv", index=False)
 
 
+def save_figure(fig, path: Path) -> None:
+    """Save a figure as PNG (300 dpi) and SVG; SVG text stays editable (real text, not outlines)."""
+    fig.savefig(path.with_suffix(".png"), dpi=300)
+    with plt.rc_context({"svg.fonttype": "none"}):
+        fig.savefig(path.with_suffix(".svg"))
+
+
 def write_q1_figures(out_dir: Path, q1_results: dict) -> None:
     figures = out_dir / "figures"
     figures.mkdir(exist_ok=True)
@@ -187,7 +194,7 @@ def write_q1_figures(out_dir: Path, q1_results: dict) -> None:
     plt.ylim(-2, 102)
     plt.legend(fontsize=8)
     plt.tight_layout()
-    plt.savefig(figures / "figure_1_q1_observed_vs_predicted_winkler.png", dpi=300)
+    save_figure(plt.gcf(), figures / "figure_1_q1_observed_vs_predicted_winkler")
     plt.close()
 
     plt.figure(figsize=(7, 4))
@@ -197,7 +204,7 @@ def write_q1_figures(out_dir: Path, q1_results: dict) -> None:
     plt.title(f"Absolute errors by Winkler/Holube CI status: {best_model}")
     plt.legend()
     plt.tight_layout()
-    plt.savefig(figures / "figure_2_q1_error_distribution.png", dpi=300)
+    save_figure(plt.gcf(), figures / "figure_2_q1_error_distribution")
     plt.close()
 
 
@@ -253,7 +260,7 @@ def write_q1_top_models_scatter(out_dir: Path, q1_results: dict, random_seed: in
         )
 
     fig.tight_layout()
-    fig.savefig(figures / "cochlea_figure_1_q1_top_models_observed_vs_predicted.png", dpi=300)
+    save_figure(fig, figures / "cochlea_figure_1_q1_top_models_observed_vs_predicted")
     plt.close(fig)
 
 
@@ -292,7 +299,7 @@ def write_q3_reference_models_scatter(out_dir: Path, hoppe_table: pd.DataFrame, 
             )
         fig.suptitle(f"Endpoint: {endpoint}", fontsize=15)
         fig.tight_layout()
-        fig.savefig(figures / f"cochlea_figure_3_q3_reference_models_{endpoint}.png", dpi=300)
+        save_figure(fig, figures / f"cochlea_figure_3_q3_reference_models_{endpoint}")
         plt.close(fig)
 
 
@@ -323,5 +330,5 @@ def write_q2_best_model_importance(out_dir: Path, q1_regression: pd.DataFrame, i
     ax.tick_params(labelsize=12)
 
     fig.tight_layout()
-    fig.savefig(figures / "cochlea_figure_2_q2_best_model_importance.png", dpi=300)
+    save_figure(fig, figures / "cochlea_figure_2_q2_best_model_importance")
     plt.close(fig)
